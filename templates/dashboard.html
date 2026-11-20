@@ -1,0 +1,909 @@
+
+cat > templates/dashboard.html <<'EOF'
+{% extends "base.html" %}
+
+{% block title %}Overview | CodeClarity{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ==========================================
+   CODECLARITY - OVERVIEW REDESIGN
+   All styles are scoped to this page
+========================================== */
+
+.overview-page {
+    --ov-bg: #080d19;
+    --ov-panel: #111a2b;
+    --ov-panel-hover: #162239;
+    --ov-border: #24334c;
+    --ov-muted: #91a0b8;
+    --ov-white: #f1f5ff;
+    --ov-purple: #9665ff;
+    --ov-blue: #4385ff;
+
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 12px 8px 30px;
+    color: var(--ov-white);
+    box-sizing: border-box;
+}
+
+.overview-page *,
+.overview-page *::before,
+.overview-page *::after {
+    box-sizing: border-box;
+}
+
+.overview-page a {
+    text-decoration: none;
+}
+
+/* TOP HEADING */
+
+.ov-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.ov-breadcrumb {
+    color: var(--ov-muted);
+    font-size: 13px;
+}
+
+.ov-breadcrumb strong {
+    color: #c4a7ff;
+    font-weight: 600;
+}
+
+.ov-top-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #aebbd0;
+    font-size: 12px;
+}
+
+.ov-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #35d99a;
+    box-shadow: 0 0 12px #35d99a66;
+}
+
+/* HERO */
+
+.ov-hero {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 25px;
+    padding: 36px 38px;
+    min-height: 205px;
+    border: 1px solid #51418c;
+    border-radius: 19px;
+    background:
+        radial-gradient(ellipse at 85% 15%, #3266b955, transparent 45%),
+        linear-gradient(115deg, #24183f 0%, #192b50 60%, #152b4d 100%);
+    margin-bottom: 25px;
+}
+
+.ov-hero::after {
+    content: "";
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    border: 1px solid #ffffff12;
+    border-radius: 50%;
+    right: 12%;
+    top: -145px;
+    box-shadow: 0 0 0 35px #ffffff08,
+                0 0 0 70px #ffffff05;
+    pointer-events: none;
+}
+
+.ov-hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.ov-eyebrow {
+    color: #b69aff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    margin-bottom: 13px;
+}
+
+.ov-hero h1 {
+    color: #ffffff;
+    font-size: clamp(25px, 3vw, 36px);
+    line-height: 1.25;
+    letter-spacing: -1px;
+    margin: 0 0 12px;
+}
+
+.ov-hero-description {
+    color: #c0cbe0;
+    font-size: 14px;
+    line-height: 1.8;
+    max-width: 570px;
+    margin: 0;
+}
+
+.ov-hero-action {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-shrink: 0;
+    padding: 14px 23px;
+    border-radius: 9px;
+    background: linear-gradient(110deg, #8646f5, #397cf5);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 8px 25px #693de544;
+    transition: transform .2s, box-shadow .2s;
+}
+
+.ov-hero-action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px #693de566;
+}
+
+/* SECTION HEADINGS */
+
+.ov-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.ov-section-heading h2 {
+    color: var(--ov-white);
+    font-size: 18px;
+    font-weight: 750;
+    margin: 0;
+}
+
+.ov-section-subtitle {
+    color: var(--ov-muted);
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* FEATURE CARDS */
+
+.ov-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 17px;
+    margin-bottom: 28px;
+}
+
+.ov-feature-card {
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 22px 20px;
+    background: var(--ov-panel);
+    border: 1px solid var(--ov-border);
+    border-radius: 13px;
+    transition: transform .2s, border-color .2s;
+}
+
+.ov-feature-card:hover {
+    transform: translateY(-3px);
+    border-color: #6751a8;
+}
+
+.ov-feature-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    flex-shrink: 0;
+}
+
+.ov-purple {
+    background: #7845db25;
+    color: #b99aff;
+}
+
+.ov-blue {
+    background: #347cdb25;
+    color: #80b8ff;
+}
+
+.ov-green {
+    background: #21ba8520;
+    color: #63e6b0;
+}
+
+.ov-feature-info {
+    min-width: 0;
+}
+
+.ov-feature-info span {
+    display: block;
+    color: var(--ov-muted);
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.ov-feature-info h3 {
+    color: var(--ov-white);
+    font-size: 19px;
+    margin: 0 0 5px;
+}
+
+.ov-feature-info p {
+    color: #8798b2;
+    font-size: 11px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* MAIN GRID */
+
+.ov-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(270px, .9fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.ov-panel {
+    background: var(--ov-panel);
+    border: 1px solid var(--ov-border);
+    border-radius: 14px;
+    padding: 23px;
+    min-width: 0;
+}
+
+/* QUICK ACTIONS */
+
+.ov-action-list {
+    display: grid;
+    gap: 11px;
+}
+
+.ov-action {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 17px;
+    border: 1px solid #283750;
+    background: #0c1525;
+    border-radius: 11px;
+    transition: background .2s, border-color .2s, transform .2s;
+}
+
+.ov-action:hover {
+    background: var(--ov-panel-hover);
+    border-color: #7053bd;
+    transform: translateX(3px);
+}
+
+.ov-action-icon {
+    width: 43px;
+    height: 43px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    font-size: 19px;
+}
+
+.ov-action-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.ov-action-text h3 {
+    color: var(--ov-white);
+    font-size: 13px;
+    margin: 0 0 6px;
+}
+
+.ov-action-text p {
+    color: var(--ov-muted);
+    font-size: 11px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.ov-action-arrow {
+    color: #ac8aff;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform .2s;
+}
+
+.ov-action:hover .ov-action-arrow {
+    transform: translateX(4px);
+}
+
+/* RIGHT COLUMN */
+
+.ov-side-column {
+    display: grid;
+    gap: 17px;
+}
+
+.ov-account {
+    text-align: center;
+}
+
+.ov-account-avatar {
+    width: 65px;
+    height: 65px;
+    margin: 23px auto 13px;
+    border-radius: 19px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 25px;
+    font-weight: 800;
+    background: linear-gradient(140deg, #9252ef, #326df1);
+    box-shadow: 0 8px 25px #7043e533;
+}
+
+.ov-account h3 {
+    color: var(--ov-white);
+    font-size: 15px;
+    margin: 0 0 8px;
+    overflow-wrap: anywhere;
+}
+
+.ov-account-email {
+    color: var(--ov-muted);
+    font-size: 11px;
+    overflow-wrap: anywhere;
+    margin-bottom: 19px;
+}
+
+.ov-secondary-btn {
+    display: block;
+    padding: 11px;
+    border-radius: 8px;
+    border: 1px solid #34445f;
+    background: #19263b;
+    color: #e3eaff;
+    font-size: 12px;
+    font-weight: 650;
+    transition: background .2s;
+}
+
+.ov-secondary-btn:hover {
+    background: #263958;
+}
+
+.ov-about-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #7545d629;
+    color: #c09dff;
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.ov-about h3 {
+    color: var(--ov-white);
+    font-size: 14px;
+    margin: 0 0 10px;
+}
+
+.ov-about p {
+    color: var(--ov-muted);
+    font-size: 12px;
+    line-height: 1.8;
+    margin: 0 0 14px;
+}
+
+.ov-text-link {
+    color: #b89aff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ov-text-link:hover {
+    color: #d1bdff;
+}
+
+/* RECENT ACTIVITY */
+
+.ov-recent-panel {
+    margin-top: 21px;
+}
+
+.ov-view-all {
+    color: #b99aff;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.ov-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 18px;
+}
+
+.ov-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 490px;
+}
+
+.ov-table th {
+    padding: 13px 12px;
+    text-align: left;
+    color: #899ab5;
+    font-size: 10px;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    border-bottom: 1px solid var(--ov-border);
+}
+
+.ov-table td {
+    padding: 15px 12px;
+    color: #dce5f5;
+    font-size: 12px;
+    border-bottom: 1px solid #233149;
+}
+
+.ov-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.ov-table tbody tr:hover {
+    background: #ffffff05;
+}
+
+.ov-language {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 6px;
+    color: #c8b1ff;
+    background: #8053d822;
+    font-size: 10px;
+    font-weight: 750;
+}
+
+.ov-code-preview {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #a8b6cb !important;
+}
+
+.ov-status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: #25344a;
+    color: #c4d2e9;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.ov-open-link {
+    color: #ae91ff;
+    font-weight: 700;
+    font-size: 11px;
+}
+
+.ov-empty {
+    text-align: center;
+    padding: 36px 15px;
+}
+
+.ov-empty-icon {
+    font-size: 30px;
+    margin-bottom: 12px;
+}
+
+.ov-empty h3 {
+    color: var(--ov-white);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.ov-empty p {
+    color: var(--ov-muted);
+    font-size: 12px;
+    margin-bottom: 18px;
+}
+
+/* FOOTER */
+
+.ov-footer {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid #202c40;
+}
+
+.ov-footer p {
+    color: #71819b;
+    font-size: 11px;
+    margin: 0;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1050px) {
+    .ov-main-grid {
+        grid-template-columns: minmax(0, 1fr) 270px;
+    }
+
+    .ov-feature-grid {
+        gap: 11px;
+    }
+
+    .ov-feature-card {
+        padding: 17px 13px;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 760px) {
+    .overview-page {
+        padding: 10px 2px 25px;
+    }
+
+    .ov-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 27px 23px;
+        gap: 22px;
+    }
+
+    .ov-hero-action {
+        width: 100%;
+    }
+
+    .ov-feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ov-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ov-side-column {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ov-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .ov-side-column {
+        grid-template-columns: 1fr;
+    }
+
+    .ov-panel {
+        padding: 17px;
+    }
+
+    .ov-hero h1 {
+        font-size: 25px;
+    }
+
+    .ov-action {
+        padding: 13px 11px;
+    }
+
+    .ov-footer {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="overview-page">
+
+    <!-- TOP BAR -->
+    <div class="ov-topbar">
+        <div class="ov-breadcrumb">
+            Workspace / <strong>Overview</strong>
+        </div>
+
+        <div class="ov-top-status">
+            <span class="ov-status-dot"></span>
+            CodeClarity Workspace
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="ov-hero">
+        <div class="ov-hero-content">
+            <p class="ov-eyebrow">YOUR DEVELOPMENT WORKSPACE</p>
+
+            <h1>
+                Welcome back, {{ user_name }}!
+            </h1>
+
+            <p class="ov-hero-description">
+                Write cleaner code, discover potential issues and
+                understand your programming better with CodeClarity.
+            </p>
+        </div>
+
+        <a href="{{ url_for('analyzer_page') }}" class="ov-hero-action">
+            <span>＋</span> Analyze Code
+            <span>→</span>
+        </a>
+    </section>
+
+    <!-- WORKSPACE FEATURES -->
+    <div class="ov-section-heading">
+        <div>
+            <h2>Your Workspace</h2>
+            <p class="ov-section-subtitle">
+                Everything you need to understand and improve your code.
+            </p>
+        </div>
+    </div>
+
+    <section class="ov-feature-grid">
+
+        <div class="ov-feature-card">
+            <div class="ov-feature-icon ov-purple">⌘</div>
+            <div class="ov-feature-info">
+                <span>Code Analysis</span>
+                <h3>Smart Analysis</h3>
+                <p>Review code quality and identify potential issues.</p>
+            </div>
+        </div>
+
+        <div class="ov-feature-card">
+            <div class="ov-feature-icon ov-blue">⌨</div>
+            <div class="ov-feature-info">
+                <span>Programming Support</span>
+                <h3>4 Languages</h3>
+                <p>Python, C, C++ and Java.</p>
+            </div>
+        </div>
+
+        <div class="ov-feature-card">
+            <div class="ov-feature-icon ov-green">✦</div>
+            <div class="ov-feature-info">
+                <span>Your Activity</span>
+                <h3>{{ recent|length }} Recent Records</h3>
+                <p>Your latest available analysis records.</p>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- MAIN CONTENT -->
+    <section class="ov-main-grid">
+
+        <!-- QUICK ACTIONS -->
+        <div class="ov-panel">
+            <div class="ov-section-heading">
+                <div>
+                    <h2>Quick Actions</h2>
+                    <p class="ov-section-subtitle">
+                        Where would you like to go next?
+                    </p>
+                </div>
+            </div>
+
+            <div class="ov-action-list">
+
+                <a href="{{ url_for('analyzer_page') }}" class="ov-action">
+                    <div class="ov-action-icon ov-purple">⌘</div>
+                    <div class="ov-action-text">
+                        <h3>Analyze Your Code</h3>
+                        <p>
+                            Submit code and receive quality insights,
+                            explanations and suggestions.
+                        </p>
+                    </div>
+                    <span class="ov-action-arrow">→</span>
+                </a>
+
+                <a href="{{ url_for('history') }}" class="ov-action">
+                    <div class="ov-action-icon ov-blue">◷</div>
+                    <div class="ov-action-text">
+                        <h3>Analysis History</h3>
+                        <p>
+                            Review your previously submitted code analyses.
+                        </p>
+                    </div>
+                    <span class="ov-action-arrow">→</span>
+                </a>
+
+                <a href="{{ url_for('reports') }}" class="ov-action">
+                    <div class="ov-action-icon ov-green">▤</div>
+                    <div class="ov-action-text">
+                        <h3>Saved Reports</h3>
+                        <p>
+                            Access your saved analysis reports.
+                        </p>
+                    </div>
+                    <span class="ov-action-arrow">→</span>
+                </a>
+
+                <a href="{{ url_for('help_page') }}" class="ov-action">
+                    <div class="ov-action-icon ov-blue">?</div>
+                    <div class="ov-action-text">
+                        <h3>Help Center</h3>
+                        <p>
+                            Learn how to use CodeClarity features.
+                        </p>
+                    </div>
+                    <span class="ov-action-arrow">→</span>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- SIDE COLUMN -->
+        <div class="ov-side-column">
+
+            <div class="ov-panel ov-account">
+                <p class="ov-eyebrow">YOUR ACCOUNT</p>
+
+                <div class="ov-account-avatar">
+                    {{ user_name[0]|upper if user_name else 'U' }}
+                </div>
+
+                <h3>{{ user_name }}</h3>
+
+                <p class="ov-account-email">
+                    {{ user_email }}
+                </p>
+
+                <a href="{{ url_for('profile') }}" class="ov-secondary-btn">
+                    Manage Profile →
+                </a>
+            </div>
+
+            <div class="ov-panel ov-about">
+                <div class="ov-about-icon">✦</div>
+
+                <h3>About CodeClarity</h3>
+
+                <p>
+                    CodeClarity is an automated code quality explainer
+                    designed to help programmers identify issues,
+                    understand their code and improve their skills.
+                </p>
+
+                <a href="{{ url_for('about') }}" class="ov-text-link">
+                    Discover CodeClarity →
+                </a>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- RECENT ACTIVITY -->
+    <section class="ov-panel ov-recent-panel">
+
+        <div class="ov-section-heading">
+            <div>
+                <h2>Recent Analyses</h2>
+                <p class="ov-section-subtitle">
+                    A quick look at your latest code submissions.
+                </p>
+            </div>
+
+            <a href="{{ url_for('history') }}" class="ov-view-all">
+                View All →
+            </a>
+        </div>
+
+        {% if recent %}
+
+        <div class="ov-table-wrap">
+            <table class="ov-table">
+                <thead>
+                    <tr>
+                        <th>Language</th>
+                        <th>Code Preview</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in recent %}
+                    <tr>
+                        <td>
+                            <span class="ov-language">
+                                {{ item.language|upper }}
+                            </span>
+                        </td>
+
+                        <td class="ov-code-preview">
+                            {{ item.code_preview }}
+                        </td>
+
+                        <td>
+                            <span class="ov-status">
+                                {{ item.status }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <a class="ov-open-link"
+                               href="{{ url_for('history_detail', analysis_id=item.id) }}">
+                                Open →
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+
+        <div class="ov-empty">
+            <div class="ov-empty-icon">⌘</div>
+
+            <h3>No analyses yet</h3>
+
+            <p>
+                Your analysis history will appear here after
+                you submit your first code.
+            </p>
+
+            <a href="{{ url_for('analyzer_page') }}" class="ov-hero-action">
+                ＋ Analyze Your First Code
+            </a>
+        </div>
+
+        {% endif %}
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="ov-footer">
+        <p>© CodeClarity · Automated Code Quality Explainer</p>
+        <p>Build better code. Understand every line.</p>
+    </footer>
+
+</div>
+
+{% endblock %}
+EOF

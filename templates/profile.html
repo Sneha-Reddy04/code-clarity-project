@@ -1,0 +1,180 @@
+
+{% extends 'base.html' %}
+
+{% block title %}My Profile | CodeClarity{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <p class="dashboard-label">ACCOUNT SETTINGS</p>
+    <h1>My Profile</h1>
+    <p>Manage your personal information and preferences.</p>
+</div>
+
+<div class="profile-container">
+
+    <div class="profile-card">
+
+        <div class="profile-avatar">
+            {{ user.full_name[0]|upper }}
+        </div>
+
+        <h2>{{ user.full_name }}</h2>
+        <p class="profile-role">CodeClarity Member</p>
+
+        <div class="profile-details">
+            <div class="profile-detail">
+                <span>Account ID</span>
+                <strong>{{ user.id }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <span>Membership</span>
+                <strong>{{ user.plan|default('free')|upper }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <span>Member since</span>
+                <strong>{{ user.created_at }}</strong>
+            </div>
+        </div>
+
+        <a class="secondary-btn" href="{{ url_for('history') }}">
+            View Analysis History
+        </a>
+
+    </div>
+
+    <div class="profile-card profile-settings">
+
+        <h2>Personal Information</h2>
+        <p>Update your account details.</p>
+
+        <form method="POST" action="{{ url_for('profile') }}">
+
+            <input type="hidden" name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <label for="full_name">Full Name</label>
+
+            <input
+                type="text"
+                id="full_name"
+                name="full_name"
+                value="{{ user.full_name }}"
+                maxlength="150"
+                required
+            >
+
+            <label for="email">Email Address</label>
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value="{{ user.email }}"
+                maxlength="255"
+                required
+            >
+
+            <button type="submit" class="primary-btn">
+                Save Profile Changes
+            </button>
+
+                </form>
+
+        <hr>
+
+        <h2>Change Password</h2>
+
+        <p>Update your password to keep your account secure.</p>
+
+        <form method="POST"
+              action="{{ url_for('change_password') }}">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <label for="current_password">
+                Current Password
+            </label>
+
+            <input
+                type="password"
+                id="current_password"
+                name="current_password"
+                autocomplete="current-password"
+                required
+            >
+
+            <label for="new_password">
+                New Password
+            </label>
+
+            <input
+                type="password"
+                id="new_password"
+                name="new_password"
+                minlength="8"
+                autocomplete="new-password"
+                required
+            >
+
+            <label for="confirm_password">
+                Confirm New Password
+            </label>
+
+            <input
+                type="password"
+                id="confirm_password"
+                name="confirm_password"
+                minlength="8"
+                autocomplete="new-password"
+                required
+            >
+
+            <button type="submit" class="primary-btn">
+                Change Password
+            </button>
+
+        </form>
+
+        <hr>
+
+        <h2>Programming Preferences</h2>
+        <p>Select your preferred programming languages.</p>
+
+        <form method="POST"
+              action="{{ url_for('profile_preferences') }}">
+
+            <input type="hidden" name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            {% set selected = user.preferred_languages or [] %}
+
+            {% for language in ['Python', 'C', 'C++', 'Java'] %}
+
+            <label class="preference-option">
+                <input
+                    type="checkbox"
+                    name="preferred_languages"
+                    value="{{ language }}"
+                    {% if language in selected %}checked{% endif %}
+                >
+                {{ language }}
+            </label>
+
+            {% endfor %}
+<button type="submit" class="primary-btn">
+                Save Preferences
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
+

@@ -1,0 +1,80 @@
+
+{% extends "base.html" %}
+
+{% block title %}Help Center | CodeClarity{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <h1>Help Center</h1>
+    <p>Learn how to use CodeClarity.</p>
+</div>
+
+<div class="help-section">
+
+    <div class="help-card">
+        <h3>1. Getting Started</h3>
+        <p>
+            Register for a CodeClarity account and log in
+            to access your personal dashboard.
+        </p>
+    </div>
+
+    <div class="help-card">
+        <h3>2. Analyze Your Code</h3>
+        <p>
+            Open Code Analyzer, select your programming
+            language and enter your source code.
+        </p>
+    </div>
+
+    <div class="help-card">
+        <h3>3. Review Analysis</h3>
+        <p>
+            Submit your code to view the analysis results,
+            detected issues and available explanations.
+        </p>
+    </div>
+
+    <div class="help-card">
+        <h3>4. View Previous Analysis</h3>
+        <p>
+            Use Analysis History to access your previously
+            saved analysis records.
+        </p>
+    </div>
+
+</div>
+
+<section class="help-faq">
+    <h2>Frequently Asked Questions</h2>
+
+    <details>
+        <summary>Which programming languages are supported?</summary>
+        <p>Python, C, C++ and Java.</p>
+    </details>
+
+    <details>
+        <summary>Can I analyze code without an account?</summary>
+        <p>You must log in to access the code analyzer.</p>
+    </details>
+
+    <details>
+        <summary>Does CodeClarity provide code explanations?</summary>
+        <p>
+            Yes. The application includes AI-powered
+            explanations through its analysis service.
+        </p>
+    </details>
+
+    <details>
+        <summary>Can I view previous analysis?</summary>
+        <p>
+            Use the Analysis History section when analysis
+            records have been saved to your account.
+        </p>
+    </details>
+
+</section>
+
+{% endblock %}

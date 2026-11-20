@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d19"><meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}CodeClarity{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+{% if session.get('user_id') %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <a href="{{ url_for('dashboard') }}" class="logo">Code<span>Clarity</span></a>
+    <p class="sidebar-heading">WORKSPACE</p>
+    <nav class="sidebar-nav">
+      <a class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">⌂ <span>Overview</span></a>
+      <a class="sidebar-link {% if request.endpoint == 'analyzer_page' %}active{% endif %}" href="{{ url_for('analyzer_page') }}">⌘ <span>Code Analyzer</span></a>
+      <a class="sidebar-link {% if request.endpoint in ['history','history_detail'] %}active{% endif %}" href="{{ url_for('history') }}">◷ <span>Analysis History</span></a>
+      <a class="sidebar-link {% if request.endpoint in ['reports','report_detail'] %}active{% endif %}" href="{{ url_for('reports') }}">▤ <span>Saved Reports</span></a>
+    </nav>
+    <p class="sidebar-heading">ACCOUNT</p>
+    <nav class="sidebar-nav">
+      <a class="sidebar-link {% if request.endpoint == 'profile' %}active{% endif %}" href="{{ url_for('profile') }}">♙ <span>My Profile</span></a>
+      <a class="sidebar-link {% if request.endpoint == 'feedback' %}active{% endif %}" href="{{ url_for('feedback') }}">✉ <span>Feedback</span></a>
+      <a class="sidebar-link {% if request.endpoint == 'help_page' %}active{% endif %}" href="{{ url_for('help_page') }}">? <span>Help Center</span></a>
+      <a class="sidebar-link {% if request.endpoint == 'about' %}active{% endif %}" href="{{ url_for('about') }}">ⓘ <span>About</span></a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-info"><div class="user-avatar">{{ session.get('user_name','U')[0]|upper }}</div><div class="user-meta"><strong>{{ session.get('user_name') }}</strong><small>{{ session.get('user_email') }}</small></div></div>
+      <form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="logout-button" type="submit">Log out</button></form>
+    </div>
+  </aside>
+  <main class="main-content">
+    <header class="topbar"><span>AI-Powered Code Intelligence</span><span>Welcome, {{ session.get('user_name') }}</span></header>
+    <div class="page-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="flash-message {{ category }}">{{ message }}</div>{% endfor %}{% endwith %}
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% else %}
+  {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="public-flash flash-message {{ category }}">{{ message }}</div>{% endfor %}{% endwith %}
+  {% block public_content %}{% endblock %}
+{% endif %}
+{% block scripts %}{% endblock %}
+</body></html>

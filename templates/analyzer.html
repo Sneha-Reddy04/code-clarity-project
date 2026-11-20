@@ -1,0 +1,897 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Code Analyzer | CodeClarity{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs/loader.min.js"></script>
+
+<style>
+/* ANALYZER REDESIGN */
+
+.analyzer-page {
+    max-width: 1450px;
+    margin: auto;
+}
+
+.analyzer-heading {
+    margin-bottom: 28px;
+}
+
+.analyzer-heading h1 {
+    font-size: 34px;
+    color: #fff;
+    margin: 6px 0;
+}
+
+.analyzer-heading p {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+.analyzer-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(270px, .8fr);
+    gap: 22px;
+}
+
+.analyzer-card,
+.learning-card,
+.result-panel {
+    background: #111a2b;
+    border: 1px solid #26344b;
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.section-title {
+    font-size: 19px;
+    color: #f8fafc;
+    margin-bottom: 8px;
+}
+
+.section-description {
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.field-control {
+    width: 100%;
+    background: #0b1424;
+    border: 1px solid #34445e;
+    color: #f8fafc;
+    padding: 13px 15px;
+    border-radius: 9px;
+    font-size: 15px;
+    margin: 9px 0 20px;
+}
+
+.field-control:focus {
+    outline: none;
+    border-color: #8b5cf6;
+}
+
+.editor-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+}
+
+.toolbar-buttons {
+    display: flex;
+    gap: 9px;
+}
+
+.tool-button {
+    background: #1b2940;
+    border: 1px solid #3a4a65;
+    color: #e2e8f0;
+    border-radius: 9px;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.tool-button:hover {
+    border-color: #a78bfa;
+    background: #263652;
+}
+
+.code-editor {
+    height: 490px;
+    overflow: hidden;
+    border: 1px solid #35445c;
+    border-radius: 11px;
+    margin-bottom: 22px;
+}
+
+.run-button {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(110deg, #7c3aed, #2563eb);
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.run-button:hover {
+    opacity: .9;
+}
+
+.run-button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.status-line {
+    min-height: 26px;
+    margin-top: 13px;
+    font-size: 14px;
+}
+
+.status-line.error {
+    color: #fca5a5;
+}
+
+.status-line.success {
+    color: #86efac;
+}
+
+.learning-card h2 {
+    color: white;
+    font-size: 21px;
+    margin-bottom: 10px;
+}
+
+.learning-card > p {
+    color: #94a3b8;
+    line-height: 1.7;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.assistant-action {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin: 12px 0;
+    text-align: left;
+    background: #17243a;
+    border: 1px solid #34445e;
+    color: #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.assistant-action:hover {
+    border-color: #a78bfa;
+    transform: translateY(-1px);
+}
+
+.assistant-action:disabled {
+    opacity: .5;
+    cursor: wait;
+}
+
+.info-box {
+    background: #0c1729;
+    border: 1px solid #26344b;
+    padding: 16px;
+    border-radius: 11px;
+    margin-top: 23px;
+}
+
+.info-box h3 {
+    color: #e2e8f0;
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.info-box p {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+.result-panel {
+    margin-top: 25px;
+    display: none;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.result-header h2 {
+    font-size: 25px;
+    color: white;
+}
+
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.result-stat {
+    padding: 19px;
+    background: #0c1729;
+    border: 1px solid #293950;
+    border-radius: 12px;
+}
+
+.result-stat h3 {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 9px;
+}
+
+.result-stat strong {
+    color: #f8fafc;
+    font-size: 19px;
+}
+
+.result-block {
+    margin: 20px 0;
+    padding: 21px;
+    background: #0c1729;
+    border: 1px solid #293950;
+    border-radius: 12px;
+}
+
+.result-block h3 {
+    color: #c4b5fd;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.result-block pre {
+    background: #080f1c;
+    color: #dbeafe;
+    border: 1px solid #25344a;
+    border-radius: 9px;
+    padding: 19px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.8;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.result-text {
+    color: #dbe4f0;
+    font-size: 15px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 7px 13px;
+    border-radius: 20px;
+    background: #123d30;
+    color: #86efac;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.status-badge.failed {
+    background: #48202a;
+    color: #fca5a5;
+}
+
+.assistant-result {
+    min-height: 80px;
+    font-size: 15px;
+    line-height: 1.9;
+    color: #e2e8f0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.history-note {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-top: 15px;
+}
+
+@media(max-width: 950px) {
+    .analyzer-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 600px) {
+    .analyzer-card,
+    .learning-card,
+    .result-panel {
+        padding: 16px;
+    }
+
+    .analyzer-heading h1 {
+        font-size: 27px;
+    }
+
+    .code-editor {
+        height: 350px;
+    }
+
+    .result-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media print {
+    @page {
+        size: A4;
+        margin: 17mm 15mm 20mm;
+    }
+
+    body,
+    .app-layout,
+    .main-content,
+    .page-content {
+        background: white !important;
+        color: #111827 !important;
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .sidebar,
+    .topbar,
+    .no-print,
+    .analyzer-layout,
+    .analyzer-heading,
+    .report-actions button,
+    .learning-card {
+        display: none !important;
+    }
+
+    .result-panel {
+        display: block !important;
+        background: white !important;
+        border: none !important;
+        padding: 0 !important;
+        color: #111827 !important;
+    }
+
+    .result-header h2,
+    .result-block h3,
+    .result-stat strong,
+    .result-stat h3,
+    .result-text,
+    .history-note {
+        color: #111827 !important;
+    }
+
+    .result-block,
+    .result-stat {
+        background: white !important;
+        border: 1px solid #d1d5db !important;
+        break-inside: avoid;
+    }
+
+    .result-block pre {
+        background: #f3f4f6 !important;
+        color: #111827 !important;
+        border: 1px solid #d1d5db !important;
+        max-height: none !important;
+        overflow: visible !important;
+        white-space: pre-wrap !important;
+    }
+
+    .result-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .result-panel h2::after {
+        content: " | CodeClarity Analysis Report";
+        font-size: 12px;
+        color: #64748b;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="analyzer-page">
+
+    <div class="analyzer-heading">
+        <p class="dashboard-label">CODE WORKSPACE</p>
+        <h1>AI Code Analyzer</h1>
+        <p>Write, execute, analyze and understand your code with AI assistance.</p>
+    </div>
+
+    <div class="analyzer-layout">
+
+        <section class="analyzer-card">
+
+            <h2 class="section-title">Code Editor</h2>
+            <p class="section-description">
+                Select your programming language and enter your source code.
+            </p>
+
+            <label for="language">Programming language</label>
+
+            <select id="language" class="field-control">
+                <option value="python">Python</option>
+                <option value="java">Java</option>
+                <option value="c">C</option>
+                <option value="cpp">C++</option>
+            </select>
+
+            <div class="editor-toolbar">
+                <strong>Your source code</strong>
+
+                <div class="toolbar-buttons">
+                    <button type="button" id="copyCode" class="tool-button">Copy code</button>
+                    <button type="button" id="clearCode" class="tool-button">Clear</button>
+                </div>
+            </div>
+
+            <div id="codeEditor" class="code-editor">
+                <p style="padding:20px;color:#94a3b8">Loading code editor...</p>
+            </div>
+
+            <label for="userInput">Program input</label>
+
+            <textarea
+                id="userInput"
+                class="field-control"
+                rows="4"
+                placeholder="Enter input values, one per line (optional)"
+            ></textarea>
+
+            <button id="analyzeButton" class="run-button" disabled>
+                Loading editor...
+            </button>
+
+            <p id="status" class="status-line" role="status"></p>
+
+        </section>
+
+        <aside class="learning-card">
+
+            <h2>AI Learning Assistant</h2>
+
+            <p>
+                Understand your code, identify problems and receive
+                explanations using Gemini AI.
+            </p>
+
+            <button class="assistant-action" data-action="errors">
+                ⌕ &nbsp; Find and explain errors
+            </button>
+
+            <button class="assistant-action" data-action="fix">
+                ✦ &nbsp; Suggest corrected code
+            </button>
+
+            <button class="assistant-action" data-action="teach">
+                ▤ &nbsp; Teach me this code
+            </button>
+
+            <div class="info-box">
+                <h3>Supported languages</h3>
+                <p>Python · Java · C · C++</p>
+            </div>
+
+            <div class="info-box">
+                <h3>How it works</h3>
+                <p>
+                    01. Select a language.<br>
+                    02. Write your code.<br>
+                    03. Provide input if needed.<br>
+                    04. Run the analysis.<br>
+                    05. Explore AI explanations.
+                </p>
+            </div>
+
+            <div class="info-box">
+                <h3>Important</h3>
+                <p>
+                    Only execute code you trust. This development
+                    application is intended for local use.
+                </p>
+            </div>
+
+        </aside>
+
+    </div>
+
+    <section class="result-panel" id="resultPanel">
+
+        <div class="result-header">
+            <h2>Analysis Results</h2>
+
+            <button
+                type="button"
+                class="tool-button"
+                onclick="window.print()"
+            >
+                Print / Save PDF
+            </button>
+        </div>
+
+        <div class="result-grid">
+
+            <div class="result-stat">
+                <h3>Programming language</h3>
+                <strong id="resultLanguage">Python</strong>
+            </div>
+
+            <div class="result-stat">
+                <h3>Execution status</h3>
+                <strong id="resultStatus">Completed</strong>
+            </div>
+
+        </div>
+
+        <div class="result-block">
+            <h3>01. Original Source Code</h3>
+            <pre id="sourceResult"></pre>
+        </div>
+
+        <div class="result-block">
+            <h3>02. Program Input</h3>
+            <pre id="inputResult"></pre>
+        </div>
+
+        <div class="result-block">
+            <h3>03. Execution Output</h3>
+            <pre id="outputResult"></pre>
+        </div>
+
+        <div class="result-block" id="executionErrorBlock" style="display:none">
+            <h3>04. Execution Error</h3>
+            <pre id="executionError"></pre>
+        </div>
+
+        <div class="result-block">
+            <h3>05. AI Code Analysis</h3>
+            <div id="analysisResult" class="result-text"></div>
+        </div>
+
+        <p id="historyNote" class="history-note"></p>
+
+        <div class="result-block no-print">
+            <h3>06. AI Learning Assistant Response</h3>
+
+            <div id="assistantResult" class="assistant-result">
+                Choose an AI learning tool to receive further guidance.
+            </div>
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+(() => {
+
+    const $ = id => document.getElementById(id);
+
+    let editor = null;
+    let lastExecution = null;
+    let lastCode = '';
+    let lastInput = '';
+
+    const languageMap = {
+        python: 'python',
+        java: 'java',
+        c: 'c',
+        cpp: 'cpp'
+    };
+
+    const samples = {
+        python: 'def greet(name):\n    print("Hello", name)\n\ngreet("CodeClarity")',
+        java: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello CodeClarity");\n    }\n}',
+        c: '#include <stdio.h>\n\nint main(void) {\n    printf("Hello CodeClarity\\n");\n    return 0;\n}',
+        cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello CodeClarity" << endl;\n    return 0;\n}'
+    };
+
+    const csrfToken = document.querySelector(
+        'meta[name="csrf-token"]'
+    )?.content || '';
+
+    function setStatus(message, type = '') {
+        $('status').textContent = message;
+        $('status').className = 'status-line ' + type;
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[char]);
+    }
+
+    function setText(id, value, fallback = 'Not provided') {
+        $(id).textContent =
+            value === null || value === undefined || value === ''
+                ? fallback
+                : String(value);
+    }
+
+    function showResults(data, code, language, input) {
+
+        lastExecution = data.execution || {};
+
+        setText('resultLanguage', language.toUpperCase());
+        setText('resultStatus', lastExecution.status || 'Unknown');
+
+        setText('sourceResult', code);
+        setText('inputResult', input, 'No program input provided.');
+        setText('outputResult', lastExecution.output, 'No output produced.');
+
+        $('executionErrorBlock').style.display =
+            lastExecution.error ? 'block' : 'none';
+
+        setText('executionError', lastExecution.error);
+
+        $('analysisResult').textContent =
+            data.ai_analysis || 'No AI analysis returned.';
+
+        $('historyNote').textContent =
+            data.analysis_id
+                ? `Analysis #${data.analysis_id} saved to your history.`
+                : data.history_saved === false
+                    ? 'Analysis completed, but history could not be saved.'
+                    : 'Analysis completed.';
+
+        $('assistantResult').textContent =
+            'Choose Find Errors, Suggest Corrected Code or Teach Me to continue.';
+
+        $('resultPanel').style.display = 'block';
+
+        $('resultPanel').scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+
+    function showEditorError(message) {
+        $('codeEditor').textContent = message;
+        $('analyzeButton').disabled = true;
+        $('analyzeButton').textContent = 'Editor unavailable';
+        setStatus(message, 'error');
+    }
+
+    if (typeof require === 'undefined') {
+        showEditorError('Unable to load Monaco. Check your internet connection.');
+        return;
+    }
+
+    require.config({
+        paths: {
+            vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.52.2/min/vs'
+        }
+    });
+
+    require(
+        ['vs/editor/editor.main'],
+
+        () => {
+
+            editor = monaco.editor.create($('codeEditor'), {
+                value: samples.python,
+                language: 'python',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                fontSize: 16,
+                lineHeight: 26,
+                minimap: { enabled: false },
+                tabSize: 4,
+                wordWrap: 'on',
+                scrollBeyondLastLine: false,
+                padding: { top: 18, bottom: 18 }
+            });
+
+            $('analyzeButton').disabled = false;
+            $('analyzeButton').textContent = '▶  Analyze My Code';
+
+        },
+
+        error => {
+            showEditorError('Monaco editor failed to initialize.');
+            console.error(error);
+        }
+    );
+
+    $('language').addEventListener('change', () => {
+
+        if (!editor) return;
+
+        const language = $('language').value;
+
+        monaco.editor.setModelLanguage(
+            editor.getModel(),
+            languageMap[language]
+        );
+
+        editor.setValue(samples[language]);
+    });
+
+    $('clearCode').onclick = () => {
+
+        if (!editor) return;
+
+        editor.setValue('');
+        editor.focus();
+    };
+
+    $('copyCode').onclick = async () => {
+
+        if (!editor) return;
+
+        try {
+            await navigator.clipboard.writeText(editor.getValue());
+            setStatus('Code copied successfully.', 'success');
+        } catch (error) {
+            setStatus('Clipboard access was blocked.', 'error');
+        }
+    };
+
+    $('analyzeButton').onclick = async () => {
+
+        if (!editor) return;
+
+        const code = editor.getValue();
+        const language = $('language').value;
+        const input = $('userInput').value;
+
+        if (!code.trim()) {
+            setStatus('Please enter your source code first.', 'error');
+            return;
+        }
+
+        lastCode = code;
+        lastInput = input;
+
+        const button = $('analyzeButton');
+
+        button.disabled = true;
+        button.textContent = 'Analyzing your code...';
+
+        setStatus('Executing program and generating AI analysis...');
+
+        try {
+
+            const response = await fetch(
+                '{{ url_for("analyze") }}',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+
+                    body: JSON.stringify({
+                        code: code,
+                        language: language,
+                        user_input: input
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Analysis failed.');
+            }
+
+            showResults(data, code, language, input);
+
+            setStatus('Analysis completed successfully.', 'success');
+
+        } catch (error) {
+
+            setStatus(error.message || 'Unable to analyze code.', 'error');
+
+        } finally {
+
+            button.disabled = false;
+            button.textContent = '▶  Analyze My Code';
+
+        }
+    };
+
+    document.querySelectorAll('.assistant-action').forEach(button => {
+
+        button.addEventListener('click', async () => {
+
+            if (!lastCode) {
+                setStatus(
+                    'Analyze your code before using the AI learning tools.',
+                    'error'
+                );
+                return;
+            }
+
+            const action = button.dataset.action;
+
+            const buttons = document.querySelectorAll('.assistant-action');
+
+            buttons.forEach(item => item.disabled = true);
+
+            $('assistantResult').textContent =
+                'Gemini is preparing your response...';
+
+            try {
+
+                const response = await fetch(
+                    '{{ url_for("assistant") }}',
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+
+                        body: JSON.stringify({
+                            code: lastCode,
+                            language: $('language').value,
+                            action: action,
+                            execution: lastExecution
+                        })
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'AI request failed.');
+                }
+
+                $('assistantResult').textContent =
+                    data.answer || 'No response returned.';
+
+            } catch (error) {
+
+                $('assistantResult').textContent =
+                    error.message || 'Unable to contact Gemini.';
+
+            } finally {
+
+                buttons.forEach(item => item.disabled = false);
+
+            }
+
+        });
+
+    });
+
+})();
+</script>
+
+{% endblock %}
+

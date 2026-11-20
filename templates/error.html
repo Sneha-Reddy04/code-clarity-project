@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block title %}{{ code }} | CodeClarity{% endblock %}{% block content %}<div class="empty-state"><p class="dashboard-label">ERROR {{ code }}</p><h1>{{ message }}</h1><p>Use the navigation to return to your workspace.</p><a class="primary-btn" href="{{ url_for('dashboard') if session.get('user_id') else url_for('home') }}">Go back</a></div>{% endblock %}

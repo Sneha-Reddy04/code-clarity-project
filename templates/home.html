@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeClarity | Understand Your Code</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="logo">Code<span>Clarity</span></a>
+        <div class="nav-links">
+            <a href="/login">Login</a>
+            <a href="/register" class="nav-button">Get Started</a>
+        </div>
+    </nav>
+
+    <main class="hero">
+        <div class="hero-content">
+            <p class="tagline">AI-POWERED CODE ANALYSIS</p>
+
+            <h1>Write Code.<br>
+                Understand It.<br>
+                <span>Improve It.</span>
+            </h1>
+
+            <p class="hero-description">
+                Find coding errors, understand complex problems
+                and improve your programming skills with
+                intelligent AI-powered code analysis.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="/register" class="primary-button">
+                    Start for Free
+                </a>
+                <a href="/login" class="secondary-button">
+                    Sign In
+                </a>
+            </div>
+
+            <div class="supported-languages">
+                <p>Supported Languages</p>
+                <span>Python</span>
+                <span>C</span>
+                <span>C++</span>
+                <span>Java</span>
+            </div>
+        </div>
+
+        <div class="code-card">
+            <div class="code-header">
+                <div class="dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <span>example.py</span>
+            </div>
+
+            <pre><code>def calculate_average(numbers):
+    total = sum(numbers)
+    average = total / len(numbers)
+    return average
+
+scores = [85, 90, 78, 95]
+
+result = calculate_average(scores)
+
+print(result)</code></pre>
+
+            <div class="analysis-result">
+                <span class="success-icon">✓</span>
+                <div>
+                    <strong>Code Analysis</strong>
+                    <p>Your code is ready to analyze.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 CodeClarity. Understand code with confidence.</p>
+    </footer>
+
+</body>
+</html>
+
